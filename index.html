@@ -101,10 +101,10 @@
         }
 
         .profile-dot {
-            width: 16px;
-            height: 16px;
-            background-color: var(--accent-blue);
-            border-radius: 50%;
+            width: 24px; /* Sengaja dibesarin dikit dari 16px biar maskotnya lebih jelas */
+            height: 24px;
+            border-radius: 50%; /* Tetap dipertahankan kalau mau maskotnya dicrop bulat */
+            object-fit: cover; /* Biar gambarnya proporsional dan gak gepeng */
         }
 
         .brand-name {
@@ -279,7 +279,7 @@
             <div class="card-header">
                 <div class="header-top">
                     <div class="profile-group">
-                        <div class="profile-dot"></div>
+                        <img src="icon_maskot.png" alt="Mascot" class="profile-dot">
                         <span class="brand-name">adolescence tale quiz</span>
                     </div>
                     <span class="brand-name" style="color: #ffffff; font-size: 10px;" id="progress-text">READY</span>
