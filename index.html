@@ -528,10 +528,10 @@
                 alert("Link copied to clipboard! Paste anywhere to share.");
             }
         }
-        // --- FUNGSI SAVE IMAGE (VERSI 1:1 IG POST + BACKGROUND AESTHETIC) ---
+        // --- FUNGSI SAVE IMAGE (VERSI 1:1 IG POST + 1 KARTU SAJA + BACKGROUND AESTHETIC) ---
         function simpanGambar() {
-            // Ambil SELURUH tumpukan kartu, bukan cuma kartu depannya aja
-            const wadahAsli = document.querySelector('.cards-container'); 
+            // Ambil KARTU UTAMA saja (tanpa tumpukan belakang)
+            const kartuAsli = document.getElementById('kartu-utama'); 
             const tombolAksi = document.getElementById('action-buttons');
             
             // 1. Sembunyikan tombol di kartu asli sementara
@@ -547,39 +547,34 @@
             kotakBungkus.style.justifyContent = 'center';
             kotakBungkus.style.alignItems = 'center';
             
-            // 3. FIX BACKGROUND: Pakai warna pink super pudar + efek titik SVG 
-            // (html2canvas lebih pintar baca SVG daripada gradient CSS)
+            // 3. BACKGROUND: Warna pink pudar + efek titik SVG 
             kotakBungkus.style.backgroundColor = '#fff7fa'; 
             kotakBungkus.style.backgroundImage = "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1.5' fill='%23f290b3' fill-opacity='0.3'/%3E%3C/svg%3E\")";
             
-            // 4. Fotokopi seluruh tumpukan kartu
-            const wadahClone = wadahAsli.cloneNode(true);
+            // 4. Fotokopi KARTU UTAMA
+            const kartuClone = kartuAsli.cloneNode(true);
             
-            // Matikan semua animasi di hasil fotokopian
-            const semuaKartu = wadahClone.querySelectorAll('.card');
-            semuaKartu.forEach(kartu => {
-                kartu.style.animation = 'none';
-                kartu.style.transition = 'none';
-            });
+            // Matikan animasi di hasil fotokopian dan set posisinya biar netral
+            kartuClone.style.position = 'relative';
+            kartuClone.style.transform = 'translateY(0) scale(1)';
+            kartuClone.style.animation = 'none';
+            kartuClone.style.transition = 'none';
+            kartuClone.style.opacity = '1';
+            kartuClone.classList.remove('fade-in-up');
             
-            // Paksa kartu depan tampil 100% tanpa animasi
-            const kartuDepan = wadahClone.querySelector('.card-front');
-            if(kartuDepan) {
-                kartuDepan.style.transform = 'translateY(0) scale(1)';
-                kartuDepan.style.opacity = '1';
-                kartuDepan.classList.remove('fade-in-up');
-            }
+            // Pastikan bayangan estetiknya tetap ada
+            kartuClone.style.boxShadow = '8px 8px 0px rgba(26, 26, 26, 0.08)';
             
             // Bersihkan animasi dari konten teksnya juga
-            const kontenClone = wadahClone.querySelector('#content-wrapper');
+            const kontenClone = kartuClone.querySelector('#content-wrapper');
             if(kontenClone) {
                 kontenClone.style.animation = 'none';
                 kontenClone.style.transition = 'none';
                 kontenClone.style.opacity = '1';
             }
 
-            // Masukkan seluruh kartu ke dalam kotak studio, lalu render
-            kotakBungkus.appendChild(wadahClone);
+            // Masukkan SATU KARTU itu ke dalam kotak studio, lalu render
+            kotakBungkus.appendChild(kartuClone);
             document.body.appendChild(kotakBungkus);
 
             // 5. Mulai pemotretan kotak 1:1 tersebut
