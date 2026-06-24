@@ -242,7 +242,7 @@
 
         .result-desc {
             font-size: 12px;
-            line-height: 1;
+            line-height: 1.1;
             color: var(--soft-pink);
             margin-bottom: 15px;
             font-weight: 400;
@@ -529,7 +529,7 @@
                 alert("Link copied to clipboard! Paste anywhere to share.");
             }
         }
-        // --- FUNGSI SAVE IMAGE (VERSI PALING TAJAM) ---
+        // --- FUNGSI SAVE IMAGE (FINAL FIX ANTI PUDAR) ---
         function simpanGambar() {
             const kartu = document.getElementById('kartu-utama'); 
             const konten = document.getElementById('content-wrapper');
@@ -539,35 +539,42 @@
             const shadowAsli = kartu.style.boxShadow;
             const transformAsli = kartu.style.transform;
             
-            // 1. Matikan elemen yang bikin gambar pudar/blur
+            // 1. Sembunyikan tombol
             tombolAksi.style.display = 'none';
-            kartu.style.boxShadow = 'none';
-            kartu.style.transform = 'none'; // KUNCI ANTI PUDAR: Matikan efek melayang
             
-            // Paksa konten muncul 100% tanpa efek transisi
+            // 2. Matikan efek kartu
+            kartu.style.boxShadow = 'none';
+            kartu.style.transform = 'none'; 
+            
+            // 3. INI KUNCINYA: Hapus total animasi dari konten
+            // Biar html2canvas gak salah baca frame awal yang transparan
+            konten.classList.remove('fade-in-up');
+            konten.style.animation = 'none';
             konten.style.transition = 'none';
             konten.style.opacity = '1';
+            konten.style.transform = 'none';
 
-            // 2. Beri jeda 150ms biar layar sempat merender ulang warnanya
+            // Beri jeda 200ms biar sistem benar-benar menghapus animasinya sebelum jepret
             setTimeout(() => {
                 html2canvas(kartu, { 
-                    scale: 3, // Di-zoom 3x lipat biar hasilnya HD banget
+                    scale: 3, 
                     backgroundColor: '#ffffff',
-                    useCORS: true
+                    useCORS: true,
+                    allowTaint: true // Membantu render font lebih solid
                 }).then(canvas => {
-                    // 3. Kembalikan semua style ke normal
+                    // Kembalikan semua style ke normal
                     tombolAksi.style.display = 'flex';
                     kartu.style.boxShadow = shadowAsli;
                     kartu.style.transform = transformAsli;
-                    konten.style.transition = 'opacity 0.2s ease';
+                    konten.style.animation = '';
 
-                    // 4. Download gambarnya
+                    // Proses Download
                     const link = document.createElement('a');
-                    link.download = 'my-soundtrack.png';
-                    link.href = canvas.toDataURL('image/png'); // Format PNG murni
+                    link.download = 'adole-track.png';
+                    link.href = canvas.toDataURL('image/png', 1.0); // Kualitas maksimal 100%
                     link.click();
                 });
-            }, 150);
+            }, 200); 
         }
     </script>
 </body>
