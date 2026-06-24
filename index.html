@@ -529,39 +529,45 @@
                 alert("Link copied to clipboard! Paste anywhere to share.");
             }
         }
-        // --- FUNGSI SAVE IMAGE ---
-        // --- FUNGSI SAVE IMAGE (ANTI PUDAR) ---
+        // --- FUNGSI SAVE IMAGE (VERSI PALING TAJAM) ---
         function simpanGambar() {
             const kartu = document.getElementById('kartu-utama'); 
+            const konten = document.getElementById('content-wrapper');
             const tombolAksi = document.getElementById('action-buttons');
-            const shadowAsli = kartu.style.boxShadow;
             
-            // 1. Sembunyikan tombol dan shadow
+            // Simpan style aslinya dulu
+            const shadowAsli = kartu.style.boxShadow;
+            const transformAsli = kartu.style.transform;
+            
+            // 1. Matikan elemen yang bikin gambar pudar/blur
             tombolAksi.style.display = 'none';
             kartu.style.boxShadow = 'none';
+            kartu.style.transform = 'none'; // KUNCI ANTI PUDAR: Matikan efek melayang
             
-            // 2. Hapus class animasi sementara biar opacity dipaksa 100% penuh
-            kartu.classList.remove('fade-in-up');
-            kartu.style.opacity = '1';
+            // Paksa konten muncul 100% tanpa efek transisi
+            konten.style.transition = 'none';
+            konten.style.opacity = '1';
 
-            // 3. Kasih jeda sedikit (100ms) biar browser siap memotret
+            // 2. Beri jeda 150ms biar layar sempat merender ulang warnanya
             setTimeout(() => {
                 html2canvas(kartu, { 
-                    scale: 3, // Ditingkatkan jadi 3 biar hasil gambarnya HD dan tajam!
-                    backgroundColor: '#ffffff' // Dipaksa putih murni, jangan null
+                    scale: 3, // Di-zoom 3x lipat biar hasilnya HD banget
+                    backgroundColor: '#ffffff',
+                    useCORS: true
                 }).then(canvas => {
-                    // Kembalikan tampilan seperti semula
+                    // 3. Kembalikan semua style ke normal
                     tombolAksi.style.display = 'flex';
                     kartu.style.boxShadow = shadowAsli;
-                    kartu.classList.add('fade-in-up');
+                    kartu.style.transform = transformAsli;
+                    konten.style.transition = 'opacity 0.2s ease';
 
-                    // Proses Download
+                    // 4. Download gambarnya
                     const link = document.createElement('a');
                     link.download = 'my-soundtrack.png';
-                    link.href = canvas.toDataURL('image/png');
+                    link.href = canvas.toDataURL('image/png'); // Format PNG murni
                     link.click();
                 });
-            }, 100);
+            }, 150);
         }
     </script>
 </body>
