@@ -528,49 +528,71 @@
                 alert("Link copied to clipboard! Paste anywhere to share.");
             }
         }
-        // --- FUNGSI SAVE IMAGE (FINAL FIX ANTI PUDAR) ---
+        // --- FUNGSI SAVE IMAGE (VERSI 1:1 SQUARE + BACKGROUND) ---
         function simpanGambar() {
-            const kartu = document.getElementById('kartu-utama'); 
-            const konten = document.getElementById('content-wrapper');
+            const kartuAsli = document.getElementById('kartu-utama'); 
             const tombolAksi = document.getElementById('action-buttons');
             
-            // Simpan style aslinya dulu
-            const shadowAsli = kartu.style.boxShadow;
-            const transformAsli = kartu.style.transform;
-            
-            // 1. Sembunyikan tombol
+            // 1. Sembunyikan tombol di kartu asli sementara biar nggak ikut ke-copy
             tombolAksi.style.display = 'none';
             
-            // 2. Matikan efek kartu
-            kartu.style.boxShadow = 'none';
-            kartu.style.transform = 'none'; 
+            // 2. Buat "Studio Foto" berbentuk kotak 1:1 (600x600 pixel)
+            const kotakBungkus = document.createElement('div');
+            kotakBungkus.style.position = 'absolute';
+            kotakBungkus.style.top = '-9999px'; // Sembunyikan jauh di luar layar
+            kotakBungkus.style.width = '600px'; 
+            kotakBungkus.style.height = '600px';
+            kotakBungkus.style.display = 'flex';
+            kotakBungkus.style.justifyContent = 'center';
+            kotakBungkus.style.alignItems = 'center';
             
-            // 3. INI KUNCINYA: Hapus total animasi dari konten
-            // Biar html2canvas gak salah baca frame awal yang transparan
-            konten.classList.remove('fade-in-up');
-            konten.style.animation = 'none';
-            konten.style.transition = 'none';
-            konten.style.opacity = '1';
-            konten.style.transform = 'none';
+            // 3. Warnai background kotak persis seperti body web-mu
+            kotakBungkus.style.backgroundColor = '#ffffff';
+            kotakBungkus.style.backgroundImage = 'radial-gradient(rgba(242, 144, 179, 0.2) 1.5px, transparent 1.5px)';
+            kotakBungkus.style.backgroundSize = '20px 20px';
+            
+            // 4. Fotokopi kartumu untuk ditaruh di dalam kotak
+            const kartuClone = kartuAsli.cloneNode(true);
+            
+            // Matikan semua animasi di hasil fotokopian biar bersih dan tajam
+            kartuClone.style.transform = 'none';
+            kartuClone.style.animation = 'none';
+            kartuClone.style.transition = 'none';
+            kartuClone.style.opacity = '1';
+            kartuClone.classList.remove('fade-in-up');
+            
+            // Pastikan bayangan (shadow) estetiknya tetap ada di hasil akhir
+            kartuClone.style.boxShadow = '8px 8px 0px rgba(26, 26, 26, 0.08)';
+            
+            // Bersihkan animasi dari konten di dalamnya juga
+            const kontenClone = kartuClone.querySelector('#content-wrapper');
+            if(kontenClone) {
+                kontenClone.style.animation = 'none';
+                kontenClone.style.transition = 'none';
+                kontenClone.style.opacity = '1';
+            }
 
-            // Beri jeda 200ms biar sistem benar-benar menghapus animasinya sebelum jepret
+            // Masukkan kartu ke dalam kotak, lalu masukkan kotak ke dalam web
+            kotakBungkus.appendChild(kartuClone);
+            document.body.appendChild(kotakBungkus);
+
+            // 5. Mulai proses pemotretan kotak 1:1 tersebut
             setTimeout(() => {
-                html2canvas(kartu, { 
-                    scale: 3, 
-                    backgroundColor: '#ffffff',
+                html2canvas(kotakBungkus, { 
+                    scale: 3, // Tetap HD 3x lipat
                     useCORS: true,
-                    allowTaint: true // Membantu render font lebih solid
+                    allowTaint: true 
                 }).then(canvas => {
-                    // Kembalikan semua style ke normal
+                    // Beres difoto? Hapus "studio foto" bohongan tadi
+                    document.body.removeChild(kotakBungkus);
+                    
+                    // Kembalikan tombol di kartu aslimu
                     tombolAksi.style.display = 'flex';
-                    kartu.style.boxShadow = shadowAsli;
-                    kartu.style.transform = transformAsli;
-                    konten.style.animation = '';
 
                     // Proses Download
                     const link = document.createElement('a');
-                    link.download = 'adole-track.png';
-                    link.href = canvas.toDataURL('image/png', 1.0); // Kualitas maksimal 100%
+                    link.download = 'my-soundtrack-ig.png';
+                    link.href = canvas.toDataURL('image/png', 1.0);
                     link.click();
                 });
             }, 200); 
