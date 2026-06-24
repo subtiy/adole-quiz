@@ -241,8 +241,8 @@
         }
 
         .result-desc {
-            font-size: 13px;
-            line-height: 1.1;
+            font-size: 12px;
+            line-height: 1;
             color: var(--soft-pink);
             margin-bottom: 15px;
             font-weight: 400;
@@ -530,27 +530,38 @@
             }
         }
         // --- FUNGSI SAVE IMAGE ---
+        // --- FUNGSI SAVE IMAGE (ANTI PUDAR) ---
         function simpanGambar() {
-            // Pastikan elemen card-front kamu punya id="kartu-utama"
             const kartu = document.getElementById('kartu-utama'); 
             const tombolAksi = document.getElementById('action-buttons');
             const shadowAsli = kartu.style.boxShadow;
             
-            // Sembunyikan tombol sementara biar hasil screenshot rapi
+            // 1. Sembunyikan tombol dan shadow
             tombolAksi.style.display = 'none';
             kartu.style.boxShadow = 'none';
+            
+            // 2. Hapus class animasi sementara biar opacity dipaksa 100% penuh
+            kartu.classList.remove('fade-in-up');
+            kartu.style.opacity = '1';
 
-            html2canvas(kartu, { scale: 2, backgroundColor: null }).then(canvas => {
-                // Munculin tombolnya lagi
-                tombolAksi.style.display = 'flex';
-                kartu.style.boxShadow = shadowAsli;
+            // 3. Kasih jeda sedikit (100ms) biar browser siap memotret
+            setTimeout(() => {
+                html2canvas(kartu, { 
+                    scale: 3, // Ditingkatkan jadi 3 biar hasil gambarnya HD dan tajam!
+                    backgroundColor: '#ffffff' // Dipaksa putih murni, jangan null
+                }).then(canvas => {
+                    // Kembalikan tampilan seperti semula
+                    tombolAksi.style.display = 'flex';
+                    kartu.style.boxShadow = shadowAsli;
+                    kartu.classList.add('fade-in-up');
 
-                // Proses Download
-                const link = document.createElement('a');
-                link.download = 'my-soundtrack.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            });
+                    // Proses Download
+                    const link = document.createElement('a');
+                    link.download = 'my-soundtrack.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                });
+            }, 100);
         }
     </script>
 </body>
