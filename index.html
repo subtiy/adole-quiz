@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADOLE QUIZ</title>
+<!-- Library tambahan untuk fitur Save Image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-white: #ffffff;
+            --light-pink: #ffe8ef;
+            --soft-pink: #f290b3;
+            --bold-pink: #ef7aa4;
+            --accent-blue: #6eaff0;
+            --accent-green: #ffe8ef;
+            --text-dark: #f290b3;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f9d5df;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-dark);
+            background-image: radial-gradient(rgba(242, 144, 179, 0.2) 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
+        }
+
+        .cards-container {
+            position: relative;
+            width: 100%;
+            max-width: 340px;
+            height: 520px; 
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .card {
+            position: absolute;
+            width: 310px;
+            height: 480px;
+            border-radius: 16px;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .card-back-2 {
+            background-color: var(--bold-pink);
+            transform: translateY(-30px) rotate(-3deg) scale(0.9);
+            z-index: 1;
+            box-shadow: 0 10px 20px rgba(239, 122, 164, 0.2);
+        }
+
+        .card-back-1 {
+            background-color: var(--light-pink);
+            transform: translateY(-15px) rotate(2deg) scale(0.95);
+            z-index: 2;
+            box-shadow: 0 10px 20px rgba(248, 182, 204, 0.2);
+        }
+
+        .card-front {
+            background-color: var(--bg-white);
+            border: 2px solid var(--text-dark);
+            transform: translateY(0) scale(1);
+            z-index: 3;
+            box-shadow: 8px 8px 0px rgba(235, 235, 235, 0.08);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1.5px solid #eee;
+            gap: 12px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .profile-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-dot {
+            width: 16px;
+            height: 16px;
+            background-color: var(--accent-blue);
+            border-radius: 50%;
+        }
+
+        .brand-name {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* --- Progress Bar --- */
+        .progress-track {
+            width: 100%;
+            height: 4px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%; /* Diatur via JS */
+            background-color: var(--bold-pink);
+            border-radius: 4px;
+            transition: width 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        #content-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: opacity 0.2s ease;
+            overflow-y: auto; 
+            padding-right: 5px;
+        }
+
+        #content-wrapper::-webkit-scrollbar { width: 4px; }
+        #content-wrapper::-webkit-scrollbar-thumb { background: var(--light-pink); border-radius: 4px; }
+
+        #section-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            color: var(--accent-green);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        #teks-pertanyaan {
+            font-size: 18px; 
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            padding-bottom: 5px;
+        }
+
+        .btn-option {
+            background-color: var(--bg-white);
+            border: 1.5px solid var(--soft-pink);
+            color: var(--text-dark);
+            padding: 12px 15px;
+            border-radius: 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            line-height: 1.4;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .btn-option:hover {
+            background-color: var(--light-pink);
+            border-color: var(--bold-pink);
+            transform: translateY(-2px);
+        }
+        
+        .btn-option:active { transform: translateY(1px); }
+
+        .btn-primary {
+            text-align: center; 
+            background-color: var(--bold-pink); 
+            color: white; 
+            border: none; 
+            font-size: 16px; 
+            padding: 15px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--soft-pink);
+            border-color: transparent;
+        }
+
+        /* --- Tampilan Hasil Akhir --- */
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        .result-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .result-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent-green);
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .result-song {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--bold-pink);
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: 15px;
+        }
+
+        .result-desc {
+            font-size: 13px;
+            line-height: 1.1;
+            color: var(--soft-pink);
+            margin-bottom: 15px;
+            font-weight: 400;
+        }
+
+        .result-lyrics {
+            font-size: 11px;
+            line-height: 1.4;
+            font-style: italic;
+            color: var(--text-dark);
+            background-color: var(--light-pink);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid var(--bold-pink);
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+        }
+
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="cards-container">
+        <div class="card card-back-2"></div>
+        <div class="card card-back-1"></div>
+        
+        <div class="card card-front" id="kartu-utama">
+            <div class="card-header">
+                <div class="header-top">
+                    <div class="profile-group">
+                        <div class="profile-dot"></div>
+                        <span class="brand-name">adolescence tale quiz</span>
+                    </div>
+                    <span class="brand-name" style="color: #ffffff; font-size: 10px;" id="progress-text">READY</span>
+                </div>
+                <!-- Progress Bar -->
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-bar"></div>
+                </div>
+            </div>
+            
+            <div id="content-wrapper">
+                <div style="margin-top: 30px; text-align: center;">
+                    <div id="section-label">START QUIZ</div>
+                    <h2 id="teks-pertanyaan" style="font-size: 22px;">Ready to find out your personal soundtrack?</h2>
+                </div>
+                
+                <div class="options-container" id="opsi-container">
+                    <button class="btn-option btn-primary" onclick="mulaiKuis()">Start Test</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. DATA KUIS (Poin sudah disesuaikan secara logis untuk menghasilkan output yang akurat)
+        const dataKuis = [
+            // --- SECTION: IN LOVE (4 Pertanyaan) ---
+            {
+                section: "IN LOVE",
+                pertanyaan: "One day, you wake up in bed after dreaming about someone who feels strangely special. What would you think?",
+                opsiA: { teks: "Maybe I’m just making it all up because I’ve watched way too many dramas", poin: 1 }, // Lebih overthinking/intens
+                opsiB: { teks: "I’d fall asleep again, just to find my way back to them in my dream", poin: 0 } // Lebih romantis/naif
+            },
+            {
+                section: "IN LOVE",
+                pertanyaan: "You realize your phone just lit up with a notification from someone unexpected. What kind of notification is it?",
+                opsiA: { teks: "The senior I’ve secretly liked for forever just liked my Instagram post", poin: 0 }, // Naif/Hopeful
+                opsiB: { teks: "My ex suddenly texted me out of nowhere after a very long time", poin: 1 } // Intens/Complicated
+            },
+            {
+                section: "IN LOVE",
+                pertanyaan: "You decide to leave the house and find something to distract yourself. What do you feel like doing?",
+                opsiA: { teks: "Go to the nearest small cafe because your heart’s in one of those emotional mood again", poin: 1 }, // Melancholy
+                opsiB: { teks: "Ask your friend to go bowling with you and try to laugh the feelings away", poin: 0 } // Detached/Fun
+            },
+            {
+                section: "IN LOVE",
+                pertanyaan: "Out of nowhere, your chest starts feeling heavy. What kind of heartbreak is hitting you?",
+                opsiA: { teks: "You keep thinking about a past relationship that ended badly, and all you can do is replay it in your head and regret it", poin: 0 }, // Dwelling
+                opsiB: { teks: "You miss the feeling of falling in love, but your own expectations and walls have made it hard for anyone to get close", poin: 1 } // Self-realization/Walls
+            },
+            
+            // --- SECTION: PRETTY SAD (3 Pertanyaan) ---
+            {
+                section: "PRETTY SAD",
+                pertanyaan: "When it comes to love, which toxic habit has had the strongest hold on you?",
+                opsiA: { teks: "Trying too hard not to lose someone, begging them to stay even when deep down you know the relationship isn’t good for you anymore", poin: 1 }, // Lebih dalam/sedih
+                opsiB: { teks: "Begging for time and attention from someone who never makes you feel like a priority", poin: 0 } 
+            },
+            {
+                section: "PRETTY SAD",
+                pertanyaan: "After staring into space for way too long, you finally go home and open your diary. What do you write down?",
+                opsiA: { teks: "I promise I’ll learn how to love myself a little better than I ever have before", poin: 0 }, // Healing
+                opsiB: { teks: "I just want a love that feels equal, like it was something real and safe to hold", poin: 1 } // Longing/Melancholy
+            },
+            {
+                section: "PRETTY SAD",
+                pertanyaan: "The rain suddenly starts pouring while you're outside. What's your immediate reaction?",
+                opsiA: { teks: "Run to the nearest shelter and secretly hope for a movie-like moment with someone", poin: 0 }, // Romantic
+                opsiB: { teks: "Just walk through the rain, fully embracing that emotional main character energy", poin: 1 } // Melancholy
+            }
+        ];
+
+        // 2. MATRIKS HASIL (Baris = Sad, Kolom = Love)
+        const matriksHasil = [
+            ["drop dead", "stupid song", "honeybee", "maggots for brain"],
+            ["u + me = <3", "my way", "purple", "the cure"],
+            ["begged", "what's wrong with me", "less", "expectations"]
+        ];
+
+        // 3. DATABASE HASIL LENGKAP
+        const databaseHasil = {
+            "drop dead": {
+                desc: "You are living in the euphoric honeymoon phase of love. You're expressive, free-spirited, and love to celebrate the little moments, whether that means running through flower fields with your bestie or scream-singing with the windows down.",
+                lyrics: "“One night I was bored in bed and stalked you on the internet”"
+            },
+            "stupid song": {
+                desc: "You are overwhelmed by your feelings and often find it hard to put them into words. You are deeply romantic but feel completely vulnerable, melting whenever you are around the person you love.",
+                lyrics: "“I’m a heart made of wax, and I’m melting in the sun / I’m a thread on your shirt that is coming undone”"
+            },
+            "honeybee": {
+                desc: "You are incredibly genuine and possess a bittersweet, melancholic heart. You love fiercely but carry a quiet vulnerability, holding onto a deep-seated fear of ever losing the one you care about most.",
+                lyrics: "“I hope I never see what your face looks like going / A face I swear that I could spend my whole life knowing”"
+            },
+            "maggots for brain": {
+                desc: "You are a hopeless romantic who lets your feelings completely hijack your logic. You're not afraid to admit your crush has turned your brain to mush, and you definitely do deep-dives on their Instagram without any shame.",
+                lyrics: "“And sometimes, at a low point, I even wish for a tragedy / ’Cause I know he’d come over and take real good care of me”"
+            },
+            "u + me = <3": {
+                desc: "You are an optimist who yearns for a picture-perfect, Pinterest-worthy romance. For you, falling in love is that magical moment where everything else in life finally falls right into place.",
+                lyrics: "“And all my ex-boyfriends have heard these lines / Let’s get married when we’re 25 / But I like you better by a million times”"
+            },
+            "my way": {
+                desc: "You are fiercely protective and a little prone to jealousy when it comes to your heart. You have a strong, slightly punk-pop edge and aren't afraid to draw the line when someone crosses your boundaries.",
+                lyrics: "“Well here’s a map of the lines I drew / And some girls step over and the girl is you”"
+            },
+            "purple": {
+                desc: "You have a tendency to lose yourself entirely in your relationships. You're currently navigating the anxious realization that you might have compromised your own big dreams just to tie your life to someone else's.",
+                lyrics: "“It’s a small world / When it only can revolve around us two / It’s crazy / I had big dreams ’til I tied myself to you”"
+            },
+            "the cure": {
+                desc: "You are experiencing the painful realization that you're in an unhealthy relationship. You feel emotionally unraveled, but you are finally taking the first steps toward finding a real cure for your heartbreak.",
+                lyrics: "“And it feels like medication, and it’s good for me, I’m sure / But it don’t matter how your love feels anymore / It’ll never be the cure”"
+            },
+            "begged": {
+                desc: "You tend to dwell on romantic letdowns and hold onto memories. Yet, even when faced with disappointment, you possess an ironic resilience, quietly clinging to the hope that your luck is about to change.",
+                lyrics: "“And yet I still cling / Cling to hope like snow on mountains / Careless words melt it away / I’m a penny in a fountain / Just waiting on my luck to change”"
+            },
+            "what's wrong with me": {
+                desc: "You are struggling to accept a painful truth, often blaming yourself for the physical and emotional toll a relationship takes on you. You're in the difficult phase of realizing that the real problem isn't you, but the person you're with.",
+                lyrics: "“Say I’m in love, so it’s hard to admit / I can’t eat, I can’t sleep / I think you’re what’s wrong with me”"
+            },
+            "less": {
+                desc: "You are incredibly selfless, even when it breaks your own heart. You're willing to make the ultimate sacrifice by asking for less love if it means making an inevitable ending easier for both of you.",
+                lyrics: "“If loving me means saying, ‘Babe, I think this is the end’ / I guess / I wish, I wish, I wish you loved me less”"
+            },
+            "expectations": {
+                desc: "You are turning your pain into power. You are using past mistakes as new information to set higher standards, figuring out exactly what you want from your love life, and finally stepping into your own worth.",
+                lyrics: "“Past mistakes are just new information / These days, I’ve got expectations”"
+            }
+        };
+
+        // 4. LOGIKA SISTEM
+        let indexSaatIni = 0;
+        let skorInLove = 0;
+        let skorPrettySad = 0;
+
+        function mulaiKuis() {
+            indexSaatIni = 0;
+            skorInLove = 0;
+            skorPrettySad = 0;
+            tampilkanPertanyaan();
+        }
+
+        function tampilkanPertanyaan() {
+            const konten = document.getElementById("content-wrapper");
+            const data = dataKuis[indexSaatIni];
+
+            konten.classList.remove("fade-in-up");
+            konten.style.opacity = "0";
+
+            setTimeout(() => {
+                // Update Progress Bar
+                document.getElementById("progress-text").innerText = `${indexSaatIni + 1}/7`;
+                let progressPersen = ((indexSaatIni + 1) / 7) * 100;
+                document.getElementById("progress-bar").style.width = progressPersen + "%";
+                
+                // Konten dinamis
+                konten.innerHTML = `
+                    <div>
+                        <div id="section-label">${data.section}</div>
+                        <h2 id="teks-pertanyaan">${data.pertanyaan}</h2>
+                    </div>
+                    <div class="options-container" id="opsi-container">
+                        <button class="btn-option" onclick="pilihJawaban('${data.section}', ${data.opsiA.poin})">${data.opsiA.teks}</button>
+                        <button class="btn-option" onclick="pilihJawaban('${data.section}', ${data.opsiB.poin})">${data.opsiB.teks}</button>
+                    </div>
+                `;
+
+                konten.style.opacity = "1";
+                konten.classList.add("fade-in-up");
+            }, 200);
+        }
+
+        function pilihJawaban(section, poin) {
+            if (section === "IN LOVE") {
+                skorInLove += poin;
+            } else if (section === "PRETTY SAD") {
+                skorPrettySad += poin;
+            }
+
+            indexSaatIni++;
+            if (indexSaatIni < dataKuis.length) {
+                tampilkanPertanyaan();
+            } else {
+                tampilkanHasil();
+            }
+        }
+
+        function tampilkanHasil() {
+            const konten = document.getElementById("content-wrapper");
+            
+            // Konversi skor ke indeks array (cegah skor 0 agar tidak error)
+            let kolomInLove = Math.max(1, skorInLove) - 1; 
+            let barisPrettySad = Math.max(1, skorPrettySad) - 1; 
+
+            // Ambil judul lagu
+            let laguHasil = matriksHasil[barisPrettySad][kolomInLove];
+            let detail = databaseHasil[laguHasil];
+
+            konten.classList.remove("fade-in-up");
+            konten.style.opacity = "0";
+
+            setTimeout(() => {
+                // Progress Bar Penuh
+                document.getElementById("progress-text").innerText = "DONE";
+                document.getElementById("progress-bar").style.width = "100%";
+                
+                konten.innerHTML = `
+                    <div class="result-container">
+                        <div class="result-content">
+                            <div class="result-title">YOUR SOUNDTRACK</div>
+                            <div class="result-song">${laguHasil}</div>
+                            <div class="result-desc">${detail.desc}</div>
+                            <div class="result-lyrics">${detail.lyrics}</div>
+                        </div>
+                        
+                        <!-- Ini bagian tombol yang baru -->
+                        <div class="options-container" id="action-buttons" style="margin-top: 10px;">
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn-option" onclick="bagikanHasil('${laguHasil}')" style="flex: 1; text-align: center; font-weight: 700; border-color: #ddd;">Share 💌</button>
+                                <button class="btn-option" onclick="simpanGambar()" style="flex: 1; text-align: center; font-weight: 700; border-color: #ddd;">Save 📸</button>
+                            </div>
+                            <button class="btn-option btn-primary" onclick="location.reload()">Retake Quiz ↺</button>
+                        </div>
+                    </div>
+                `;
+
+                konten.style.opacity = "1";
+                konten.classList.add("fade-in-up");
+            }, 200);
+        }
+        // --- FUNGSI SHARE ---
+        function bagikanHasil(lagu) {
+            const teksShare = `I took the daily.quests personality test and got "${lagu}" as my personal soundtrack! What's yours? ✨`;
+            const linkWeb = window.location.href;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Soundtrack',
+                    text: teksShare,
+                    url: linkWeb
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(teksShare + " " + linkWeb);
+                alert("Link copied to clipboard! Paste anywhere to share.");
+            }
+        }
+        // --- FUNGSI SAVE IMAGE ---
+        function simpanGambar() {
+            // Pastikan elemen card-front kamu punya id="kartu-utama"
+            const kartu = document.getElementById('kartu-utama'); 
+            const tombolAksi = document.getElementById('action-buttons');
+            const shadowAsli = kartu.style.boxShadow;
+            
+            // Sembunyikan tombol sementara biar hasil screenshot rapi
+            tombolAksi.style.display = 'none';
+            kartu.style.boxShadow = 'none';
+
+            html2canvas(kartu, { scale: 2, backgroundColor: null }).then(canvas => {
+                // Munculin tombolnya lagi
+                tombolAksi.style.display = 'flex';
+                kartu.style.boxShadow = shadowAsli;
+
+                // Proses Download
+                const link = document.createElement('a');
+                link.download = 'my-soundtrack.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
