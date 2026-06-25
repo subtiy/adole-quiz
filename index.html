@@ -598,11 +598,28 @@
                     // Munculkan lagi tombol di layar aslimu
                     tombolAksi.style.display = 'flex';
 
-                    // Proses Download IG Post
-                    const link = document.createElement('a');
-                    link.download = 'adole-track.png';
-                    link.href = canvas.toDataURL('image/png', 1.0);
-                    link.click();
+                    // --- PROSES DOWNLOAD DENGAN iOS SAFARI FIX ---
+                    canvas.toBlob(function(blob) {
+                        const file = new File([blob], 'adole-track.png', { type: 'image/png' });
+                        
+                        // Deteksi murni apakah pengguna memakai perangkat Apple
+                        const isIOS = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent);
+                        
+                        if (isIOS && navigator.canShare && navigator.canShare({ files: [file] })) {
+                            // Khusus Apple: Buka menu Share iOS untuk Save Image
+                            navigator.share({
+                                files: [file],
+                                title: 'adole-track'
+                            }).catch((err) => console.log('Share dibatalkan pengguna', err));
+                        } else {
+                            // Android & Laptop: Langsung download otomatis
+                            const link = document.createElement('a');
+                            link.download = 'my-soundtrack-ig.png';
+                            link.href = URL.createObjectURL(blob);
+                            link.click();
+                        }
+                    }, 'image/png', 1.0);
+                    // --- BATAS FIX ---
                 });
             }, 200); 
         }
