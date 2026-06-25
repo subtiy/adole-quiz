@@ -598,27 +598,40 @@
                     // Munculkan lagi tombol di layar aslimu
                     tombolAksi.style.display = 'flex';
 
-                    // --- PROSES DOWNLOAD DENGAN iOS SAFARI FIX ---
-                    canvas.toBlob(function(blob) {
-                        const file = new File([blob], 'adole-track.png', { type: 'image/png' });
-                        
-                        // Deteksi murni apakah pengguna memakai perangkat Apple
-                        const isIOS = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent);
-                        
-                        if (isIOS && navigator.canShare && navigator.canShare({ files: [file] })) {
-                            // Khusus Apple: Buka menu Share iOS untuk Save Image
-                            navigator.share({
-                                files: [file],
-                                title: 'adole-track'
-                            }).catch((err) => console.log('Share dibatalkan pengguna', err));
-                        } else {
-                            // Android & Laptop: Langsung download otomatis
-                            const link = document.createElement('a');
-                            link.download = 'madole-track.png';
-                            link.href = URL.createObjectURL(blob);
-                            link.click();
+                    // --- PROSES DOWNLOAD / TAMPILKAN POP-UP (ANTI GAGAL) ---
+                    const dataUrl = canvas.toDataURL('image/png', 1.0);
+                    const isIOS = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent);
+
+                    if (isIOS) {
+                        // 1. Khusus iPhone: Buat Pop-up Modal otomatis
+                        let modal = document.getElementById('ios-modal');
+                        if (!modal) {
+                            modal = document.createElement('div');
+                            modal.id = 'ios-modal';
+                            // Styling langsung di JS biar nggak perlu edit file CSS
+                            modal.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; padding: 25px; box-sizing: border-box; backdrop-filter: blur(5px); transition: opacity 0.3s;';
+                            
+                            modal.innerHTML = `
+                                <div style="background: white; padding: 10px 15px; border-radius: 20px; margin-bottom: 20px; font-weight: 700; font-size: 13px; color: #ef7aa4; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                                    ✨ Tahan gambar (long press) lalu pilih "Save Image" ✨
+                                </div>
+                                <img id="ios-modal-img" style="max-width: 100%; max-height: 60vh; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                                <button onclick="document.getElementById('ios-modal').style.display='none'" style="margin-top: 25px; padding: 12px 30px; background: #ef7aa4; color: white; border: none; border-radius: 20px; font-weight: 800; font-size: 14px; cursor: pointer;">Tutup</button>
+                            `;
+                            document.body.appendChild(modal);
                         }
-                    }, 'image/png', 1.0);
+
+                        // Tampilkan gambar ke dalam pop-up
+                        document.getElementById('ios-modal-img').src = dataUrl;
+                        modal.style.display = 'flex';
+
+                    } else {
+                        // 2. Android & Laptop: Tetap jalan mulus dengan download otomatis
+                        const link = document.createElement('a');
+                        link.download = 'adole-track.png';
+                        link.href = dataUrl;
+                        link.click();
+                    }
                     // --- BATAS FIX ---
                 });
             }, 200); 
