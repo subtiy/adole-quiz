@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADOLE QUIZ</title>
-<!-- Library tambahan untuk fitur Save Image -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -206,7 +205,6 @@
             border-color: transparent;
         }
 
-        /* --- Tampilan Hasil Akhir --- */
         .result-container {
             display: flex;
             flex-direction: column;
@@ -311,9 +309,7 @@
     </div>
 
     <script>
-        // 1. DATA KUIS (Poin sudah disesuaikan secara logis untuk menghasilkan output yang akurat)
         const dataKuis = [
-            // --- SECTION: IN LOVE (4 Pertanyaan) ---
             {
                 section: "IN LOVE",
                 pertanyaan: "One day, you wake up in bed after dreaming about someone who feels strangely special. What would you think?",
@@ -339,7 +335,6 @@
                 opsiB: { teks: "You miss the feeling of falling in love, but your own expectations and walls have made it hard for anyone to get close", poin: 1 } // Self-realization/Walls
             },
             
-            // --- SECTION: PRETTY SAD (3 Pertanyaan) ---
             {
                 section: "PRETTY SAD",
                 pertanyaan: "When it comes to love, which toxic habit has had the strongest hold on you?",
@@ -360,14 +355,12 @@
             }
         ];
 
-        // 2. MATRIKS HASIL (Baris = Sad, Kolom = Love)
         const matriksHasil = [
             ["drop dead", "stupid song", "honeybee", "maggots for brain"],
             ["u + me = <3", "my way", "purple", "the cure"],
             ["begged", "what's wrong with me", "less", "expectations"]
         ];
 
-        // 3. DATABASE HASIL LENGKAP
         const databaseHasil = {
             "drop dead": {
                 desc: "You are living in the euphoric honeymoon phase of love. You're expressive, free-spirited, and love to celebrate the little moments, whether that means running through flower fields with your bestie or scream-singing with the windows down.",
@@ -419,7 +412,6 @@
             }
         };
 
-        // 4. LOGIKA SISTEM
         let indexSaatIni = 0;
         let skorInLove = 0;
         let skorPrettySad = 0;
@@ -444,7 +436,6 @@
                 let progressPersen = ((indexSaatIni + 1) / 7) * 100;
                 document.getElementById("progress-bar").style.width = progressPersen + "%";
                 
-                // Konten dinamis
                 konten.innerHTML = `
                     <div>
                         <div id="section-label">${data.section}</div>
@@ -479,11 +470,9 @@
         function tampilkanHasil() {
             const konten = document.getElementById("content-wrapper");
             
-            // Konversi skor ke indeks array
             let kolomInLove = Math.max(1, skorInLove) - 1; 
             let barisPrettySad = Math.max(1, skorPrettySad) - 1; 
 
-            // Ambil judul lagu
             let laguHasil = matriksHasil[barisPrettySad][kolomInLove];
             let detail = databaseHasil[laguHasil];
 
@@ -491,7 +480,6 @@
             konten.style.opacity = "0";
 
             setTimeout(() => {
-                // Progress Bar Penuh
                 document.getElementById("progress-text").innerText = "DONE";
                 document.getElementById("progress-bar").style.width = "100%";
                 
@@ -520,7 +508,6 @@
                 konten.classList.add("fade-in-up");
             }, 200);
         }
-        // --- FUNGSI SHARE ---
         function bagikanHasil(lagu) {
             const teksShare = `I took the adole-quiz and got "${lagu}" as my personal soundtrack! What's yours?`;
             const linkWeb = window.location.href;
@@ -536,16 +523,12 @@
                 alert("Link copied to clipboard! Paste anywhere to share.");
             }
         }
-        // --- FUNGSI SAVE IMAGE (VERSI 1:1 IG POST + 1 KARTU SAJA + BACKGROUND AESTHETIC) ---
         function simpanGambar() {
-            // Ambil KARTU UTAMA saja (tanpa tumpukan belakang)
             const kartuAsli = document.getElementById('kartu-utama'); 
             const tombolAksi = document.getElementById('action-buttons');
             
-            // 1. Sembunyikan tombol di kartu asli sementara
             tombolAksi.style.display = 'none';
             
-            // 2. Buat "Studio Foto" kotak 1:1 (600x600 pixel)
             const kotakBungkus = document.createElement('div');
             kotakBungkus.style.position = 'absolute';
             kotakBungkus.style.top = '-9999px'; 
@@ -555,14 +538,11 @@
             kotakBungkus.style.justifyContent = 'center';
             kotakBungkus.style.alignItems = 'center';
             
-            // 3. BACKGROUND: Warna pink pudar + efek titik SVG 
             kotakBungkus.style.backgroundColor = '#ef7aa4'; 
             kotakBungkus.style.backgroundImage = "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1.5' fill='%23f290b3' fill-opacity='0.3'/%3E%3C/svg%3E\")";
             
-            // 4. Fotokopi KARTU UTAMA
             const kartuClone = kartuAsli.cloneNode(true);
             
-            // Matikan animasi di hasil fotokopian dan set posisinya biar netral
             kartuClone.style.position = 'relative';
             kartuClone.style.transform = 'translateY(0) scale(1)';
             kartuClone.style.animation = 'none';
@@ -570,10 +550,8 @@
             kartuClone.style.opacity = '1';
             kartuClone.classList.remove('fade-in-up');
             
-            // Pastikan bayangan estetiknya tetap ada
             kartuClone.style.boxShadow = '8px 8px 0px rgba(26, 26, 26, 0.08)';
             
-            // Bersihkan animasi dari konten teksnya juga
             const kontenClone = kartuClone.querySelector('#content-wrapper');
             if(kontenClone) {
                 kontenClone.style.animation = 'none';
@@ -581,27 +559,21 @@
                 kontenClone.style.opacity = '1';
             }
 
-            // Masukkan SATU KARTU itu ke dalam kotak studio, lalu render
             kotakBungkus.appendChild(kartuClone);
             document.body.appendChild(kotakBungkus);
 
-            // 5. Mulai pemotretan kotak 1:1 tersebut
             setTimeout(() => {
                 html2canvas(kotakBungkus, { 
-                    scale: 3, // Kualitas HD
+                    scale: 3,
                     useCORS: true,
                     allowTaint: true 
                 }).then(canvas => {
-                    // Beres difoto, hapus "studio foto" bohongan
                     document.body.removeChild(kotakBungkus);
                     
-                    // Munculkan lagi tombol di layar aslimu
                     tombolAksi.style.display = 'flex';
 
-                    // --- PROSES DOWNLOAD / TAMPILKAN POP-UP (SUPER FIX iOS) ---
                     const dataUrl = canvas.toDataURL('image/png', 1.0);
                     
-                    // Deteksi Apple yang lebih canggih (termasuk iPad versi terbaru)
                     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
                     if (isIOS) {
@@ -623,18 +595,15 @@
                             document.body.appendChild(modal);
                         }
 
-                        // Masukkan gambar ke dalam Pop-up
                         document.getElementById('ios-modal-img').src = dataUrl;
                         modal.style.display = 'flex';
 
                     } else {
-                        // Android & PC: Tetap langsung download otomatis
                         const link = document.createElement('a');
                         link.download = 'adole-track.png';
                         link.href = dataUrl;
                         link.click();
                     }
-                    // --- BATAS FIX ---
                 });
             }, 200); 
         }
